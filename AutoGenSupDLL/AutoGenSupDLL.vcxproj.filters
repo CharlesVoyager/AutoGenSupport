@@ -1,0 +1,287 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\geom">
+      <UniqueIdentifier>{375b1956-e814-46ce-9691-59982cbf25b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SupportGenerate">
+      <UniqueIdentifier>{a325b68c-68a9-4662-80c6-707f59fd48a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SupportCylinder">
+      <UniqueIdentifier>{d373bf9c-0b3b-4f6d-a9ec-76925ee49f4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\geom">
+      <UniqueIdentifier>{ef99eca8-8e8d-42bc-8cdd-89f1c9297513}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SupportCylinder">
+      <UniqueIdentifier>{660665c9-c46f-4fdc-8f68-432479c54799}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SpaceStructure">
+      <UniqueIdentifier>{c966482c-6932-4b6a-87c5-2994c54b2373}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SupportBase">
+      <UniqueIdentifier>{4e71c941-937b-4857-8a6d-455c8d7232fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\CollisionDetect">
+      <UniqueIdentifier>{45b91dbe-b226-4d03-8046-ce892b153eea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SupportGenerate">
+      <UniqueIdentifier>{3b9b331c-dd26-4bce-892c-75dda945203b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SupportCone">
+      <UniqueIdentifier>{ca413773-a8c6-49b5-bc5c-6468ae253e46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SupportTree">
+      <UniqueIdentifier>{a73cdedd-df0f-42f0-8921-8e82261aab51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\LayerModule">
+      <UniqueIdentifier>{cc82cc0e-07cb-4a8c-905c-343dfb79375b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SvgTransfer">
+      <UniqueIdentifier>{e98b507c-ea9f-4c14-9f01-95814fcadd5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SvgTransfer">
+      <UniqueIdentifier>{b15c91bf-b4a8-421d-ae91-c1c5e3acfcac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Helper">
+      <UniqueIdentifier>{210f00dd-49e0-4d10-95c3-830e11e49f60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Helper">
+      <UniqueIdentifier>{7e746e85-552d-4294-b0c0-f4dc5201d5ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SupportBed">
+      <UniqueIdentifier>{02ec1b86-0476-4453-bcf4-ed7dbefa6db9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SupportBed">
+      <UniqueIdentifier>{714e8bd5-4e11-4abf-90be-560e4ccf03af}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataCombination.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geom\Matrix4.h">
+      <Filter>Header Files\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="geom\TopoModel.h">
+      <Filter>Header Files\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="geom\TopoTriangle.h">
+      <Filter>Header Files\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="geom\TopoTriangleStorage.h">
+      <Filter>Header Files\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="geom\TopoVertex.h">
+      <Filter>Header Files\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="geom\TopoVertexStorage.h">
+      <Filter>Header Files\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportGenerate\CubeUpdate.h">
+      <Filter>Header Files\SupportGenerate</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportGenerate\GenBody.h">
+      <Filter>Header Files\SupportGenerate</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportGenerate\GenBranch.h">
+      <Filter>Header Files\SupportGenerate</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportCylinder\SupportMeshsCylinder.h">
+      <Filter>Header Files\SupportCylinder</Filter>
+    </ClInclude>
+    <ClInclude Include="geom\RHBoundingBox.h">
+      <Filter>Header Files\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="geom\Submesh.h">
+      <Filter>Header Files\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportCylinder\SupportPoint.h">
+      <Filter>Header Files\SupportCylinder</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportCylinder\SupportReferenceMesh.h">
+      <Filter>Header Files\SupportCylinder</Filter>
+    </ClInclude>
+    <ClInclude Include="geom\Vectors.h">
+      <Filter>Header Files\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceStructure\CubeMatrix.h">
+      <Filter>Header Files\SpaceStructure</Filter>
+    </ClInclude>
+    <ClInclude Include="geom\RHVector3.h">
+      <Filter>Header Files\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceStructure\CubeNum.h">
+      <Filter>Header Files\SpaceStructure</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionDetect\RayCollisionDetect.h">
+      <Filter>Header Files\CollisionDetect</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportGenerate\GenBasic.h">
+      <Filter>Header Files\SupportGenerate</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportCone\SupportMeshsCone.h">
+      <Filter>Header Files\SupportCone</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportCone\SupportSymbolCone.h">
+      <Filter>Header Files\SupportCone</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportTree\SupportMeshsTree.h">
+      <Filter>Header Files\SupportTree</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportTree\SupportSymbolTree.h">
+      <Filter>Header Files\SupportTree</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportBase\Cubedata.h">
+      <Filter>Header Files\SupportBase</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportBase\SupportMeshsBase.h">
+      <Filter>Header Files\SupportBase</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportBase\SupportSymbol.h">
+      <Filter>Header Files\SupportBase</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportTree\SupportPointTree.h">
+      <Filter>Header Files\SupportTree</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceStructure\Cube.h">
+      <Filter>Header Files\SpaceStructure</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportBase\SupportMeshsMark.h">
+      <Filter>Header Files\SupportBase</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportCylinder\SupportPointsList.h">
+      <Filter>Header Files\SupportCylinder</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LayerModule\LayerModel.h">
+      <Filter>Header Files\LayerModule</Filter>
+    </ClInclude>
+    <ClInclude Include="LayerModule\MeshModel.h">
+      <Filter>Header Files\LayerModule</Filter>
+    </ClInclude>
+    <ClInclude Include="LayerModule\SegmentModel.h">
+      <Filter>Header Files\LayerModule</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SvgTransfer\getdatafromSVG.h">
+      <Filter>Header Files\SvgTransfer</Filter>
+    </ClInclude>
+    <ClInclude Include="LayerModule\PointsSplitter.h">
+      <Filter>Header Files\LayerModule</Filter>
+    </ClInclude>
+    <ClInclude Include="SvgTransfer\GetMeshFromSVG.h">
+      <Filter>Header Files\SvgTransfer</Filter>
+    </ClInclude>
+    <ClInclude Include="SvgTransfer\GetSegmentsfromSVG.h">
+      <Filter>Header Files\SvgTransfer</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper\MyTools.h">
+      <Filter>Header Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper\pugiconfig.hpp">
+      <Filter>Header Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper\pugixml.hpp">
+      <Filter>Header Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportCylinder\SupportPointsListDbg.h">
+      <Filter>Header Files\SupportCylinder</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper\clipper.hpp">
+      <Filter>Header Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportBed\SupportMeshsBed.h">
+      <Filter>Header Files\SupportBed</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportGenerate\SupportStructure.h">
+      <Filter>Header Files\SupportGenerate</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper\boolinq.h">
+      <Filter>Source Files\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="geom\Helper.h">
+      <Filter>Header Files\geom</Filter>
+    </ClInclude>
+    <ClInclude Include="Sp3ApiForQt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportBed\SupportMeshsBedDbg.h">
+      <Filter>Header Files\SupportBed</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoGenSupDLL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geom\Matrix4.cpp">
+      <Filter>Source Files\geom</Filter>
+    </ClCompile>
+    <ClCompile Include="SupportCylinder\SupportMeshsCylinder.cpp">
+      <Filter>Source Files\SupportCylinder</Filter>
+    </ClCompile>
+    <ClCompile Include="SupportGenerate\GenBasic.cpp">
+      <Filter>Source Files\SupportGenerate</Filter>
+    </ClCompile>
+    <ClCompile Include="geom\Helper.cpp">
+      <Filter>Source Files\geom</Filter>
+    </ClCompile>
+    <ClCompile Include="SupportCylinder\SupportPointsList.cpp">
+      <Filter>Source Files\SupportCylinder</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper\pugixml.cpp">
+      <Filter>Source Files\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper\Clipper.cpp">
+      <Filter>Source Files\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="SupportBed\SupportMeshsBed.cpp">
+      <Filter>Source Files\SupportBed</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper\MyTools.cpp">
+      <Filter>Source Files\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sp3ApiForQt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AutoGenSupDLL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="AutoGenSupDLL.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,8 @@
+1. Cube
+   Rotate 45 degrees
+
+2. Robot
+   a. mini support
+   b. point between foot
+   c. Auto with inner support or without inner support
+

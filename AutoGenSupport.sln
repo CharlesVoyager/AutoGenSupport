@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33424.131
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Slicer2.0DLL", "Slicer2.0DLL\Slicer2.0DLL.vcxproj", "{D1829BE5-AE53-4830-8A1F-F238AD1D8253}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoGenSupDLL", "AutoGenSupDLL\AutoGenSupDLL.vcxproj", "{205B9AB8-FCC9-48C4-B091-2A5EF334FF62}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoGenSupTestAP", "AutoGenSupTestAP\AutoGenSupTestAP.vcxproj", "{6BBEEC09-CC07-479F-92D9-430AA8DF090E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D1829BE5-AE53-4830-8A1F-F238AD1D8253}.Debug|x64.ActiveCfg = Debug|x64
+		{D1829BE5-AE53-4830-8A1F-F238AD1D8253}.Debug|x64.Build.0 = Debug|x64
+		{D1829BE5-AE53-4830-8A1F-F238AD1D8253}.Debug|x86.ActiveCfg = Debug|Win32
+		{D1829BE5-AE53-4830-8A1F-F238AD1D8253}.Debug|x86.Build.0 = Debug|Win32
+		{D1829BE5-AE53-4830-8A1F-F238AD1D8253}.Release|x64.ActiveCfg = Release|x64
+		{D1829BE5-AE53-4830-8A1F-F238AD1D8253}.Release|x64.Build.0 = Release|x64
+		{D1829BE5-AE53-4830-8A1F-F238AD1D8253}.Release|x86.ActiveCfg = Release|Win32
+		{D1829BE5-AE53-4830-8A1F-F238AD1D8253}.Release|x86.Build.0 = Release|Win32
+		{205B9AB8-FCC9-48C4-B091-2A5EF334FF62}.Debug|x64.ActiveCfg = Debug|x64
+		{205B9AB8-FCC9-48C4-B091-2A5EF334FF62}.Debug|x64.Build.0 = Debug|x64
+		{205B9AB8-FCC9-48C4-B091-2A5EF334FF62}.Debug|x86.ActiveCfg = Debug|Win32
+		{205B9AB8-FCC9-48C4-B091-2A5EF334FF62}.Debug|x86.Build.0 = Debug|Win32
+		{205B9AB8-FCC9-48C4-B091-2A5EF334FF62}.Release|x64.ActiveCfg = Release|x64
+		{205B9AB8-FCC9-48C4-B091-2A5EF334FF62}.Release|x64.Build.0 = Release|x64
+		{205B9AB8-FCC9-48C4-B091-2A5EF334FF62}.Release|x86.ActiveCfg = Release|Win32
+		{205B9AB8-FCC9-48C4-B091-2A5EF334FF62}.Release|x86.Build.0 = Release|Win32
+		{6BBEEC09-CC07-479F-92D9-430AA8DF090E}.Debug|x64.ActiveCfg = Debug|x64
+		{6BBEEC09-CC07-479F-92D9-430AA8DF090E}.Debug|x64.Build.0 = Debug|x64
+		{6BBEEC09-CC07-479F-92D9-430AA8DF090E}.Debug|x86.ActiveCfg = Debug|Win32
+		{6BBEEC09-CC07-479F-92D9-430AA8DF090E}.Debug|x86.Build.0 = Debug|Win32
+		{6BBEEC09-CC07-479F-92D9-430AA8DF090E}.Release|x64.ActiveCfg = Release|x64
+		{6BBEEC09-CC07-479F-92D9-430AA8DF090E}.Release|x64.Build.0 = Release|x64
+		{6BBEEC09-CC07-479F-92D9-430AA8DF090E}.Release|x86.ActiveCfg = Release|Win32
+		{6BBEEC09-CC07-479F-92D9-430AA8DF090E}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {259745E2-B094-4F13-9054-1461B4472E2C}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
+EndGlobal

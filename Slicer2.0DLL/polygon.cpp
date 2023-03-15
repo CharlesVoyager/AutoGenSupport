@@ -1,0 +1,649 @@
+//Copyright (c) 2017 Ultimaker B.V.
+//CuraEngine is released under the terms of the AGPLv3 or higher.
+
+#include "stdafx.h"
+#include "polygon.h"
+#include "linearAlg2D.h" // pointLiesOnTheRightOfLine
+
+#include "ListPolyIt.h"
+
+namespace cura {
+
+bool ConstPolygonRef::shorterThan(int64_t check_length) const
+{
+    const ConstPolygonRef& polygon = *this;
+    const Point* p0 = &polygon.back();
+    int64_t length = 0;
+    for (const Point& p1 : polygon)
+    {
+        length += vSize(*p0 - p1);
+        if (length >= check_length)
+        {
+            return false;
+        }
+        p0 = &p1;
+    }
+    return true;
+}
+
+
+bool Polygons::empty() const
+{
+    return paths.empty();
+}
+
+Polygons Polygons::approxConvexHull(int extra_outset)
+{
+    //constexpr int overshoot = 100000; //10cm (hard-coded value).
+	const int overshoot = 100000; //10cm (hard-coded value).
+
+    Polygons convex_hull;
+    //Perform the offset for each polygon one at a time.
+    //This is necessary because the polygons may overlap, in which case the offset could end up in an infinite loop.
+    //See http://www.angusj.com/delphi/clipper/documentation/Docs/Units/ClipperLib/Classes/ClipperOffset/_Body.htm
+    for (const ClipperLib::Path path : paths)
+    {
+        Polygons offset_result;
+        ClipperLib::ClipperOffset offsetter(1.2, 10.0);
+        offsetter.AddPath(path, ClipperLib::jtRound, ClipperLib::etClosedPolygon);
+        offsetter.Execute(offset_result.paths, overshoot);
+        convex_hull.add(offset_result);
+    }
+    return convex_hull.unionPolygons().offset(-overshoot + extra_outset, ClipperLib::jtRound);
+}
+
+unsigned int Polygons::pointCount() const
+{
+    unsigned int count = 0;
+    for (const ClipperLib::Path& path : paths)
+    {
+        count += path.size();
+    }
+    return count;
+}
+
+Point Polygons::getCenterOfPolygon(ClipperLib::Path polygon)
+{
+	//Polygon poly;
+	PolygonSingle poly;
+	for (Point point : polygon)
+		poly.add(point);
+
+	return poly.centerOfMass();
+}
+
+void Polygons::setPolygonsHoleIdx()
+{
+	polyIsHole.assign(size(), false);
+
+	for (unsigned int i = 0; i < size(); i++)
+	{
+		//printf("polygon : %d \n", i);
+		//centerPoint = getCenterOfPolygon(paths[i]);
+		//if (inside(centerPoint, border_result))
+		//{
+		//	if (inside(paths[i][0], border_result))
+		//		polyIsHole[i] = true;
+		//}
+
+		ConstPolygonRef polygon = paths[i];
+		polyIsHole[i] = polygon.orientation() ? false : true;
+        //polyIsHole[51] = true;
+	}
+}
+
+bool Polygons::inside(Point p, bool border_result) const
+{
+    int poly_count_inside = 0;
+    for (const ClipperLib::Path& poly : *this)
+    {
+        const int is_inside_this_poly = ClipperLib::PointInPolygon(p, poly);
+        if (is_inside_this_poly == -1)
+        {
+			//printf("border_result_!! \n");
+            //return border_result;
+        }
+		//printf("is_inside_this_poly: %d \n", is_inside_this_poly);
+        poly_count_inside += is_inside_this_poly;
+    }
+    //return (poly_count_inside % 2) == 1;
+	// 有錯? 應該是偶數才傳true
+	return (poly_count_inside % 2) == 0;
+}
+
+
+unsigned int Polygons::findInside(Point p, bool border_result)
+{
+    Polygons& thiss = *this;
+    if (size() < 1)
+    {
+        return false;
+    }
+
+	//int64_t min_x[(size()];
+	int64_t *min_x = new int64_t[size()];
+    std::fill_n(min_x, size(), std::numeric_limits<int64_t>::max());  // initialize with int.max
+    //int crossings[size()];
+	int *crossings = new int[size()];
+    std::fill_n(crossings, size(), 0);  // initialize with zeros
+    
+    for (unsigned int poly_idx = 0; poly_idx < size(); poly_idx++)
+    {
+        PolygonRef poly = thiss[poly_idx];
+        Point p0 = poly.back();
+        for(Point& p1 : poly)  
+        {
+			//printf("poly ++\n");
+            short comp = LinearAlg2D::pointLiesOnTheRightOfLine(p, p0, p1);
+            if (comp == 1)
+            {
+				printf("com ==1\n");
+                crossings[poly_idx]++;
+                int64_t x;
+                if (p1.Y == p0.Y)
+                {
+                    x = p0.X;
+                }
+                else 
+                {
+                    x = p0.X + (p1.X-p0.X) * (p.Y-p0.Y) / (p1.Y-p0.Y);
+                }
+                if (x < min_x[poly_idx])
+                {
+                    min_x[poly_idx] = x;
+                }
+            }
+            else if (border_result && comp == 0)
+            {
+				printf("com ==0\n");
+                return poly_idx;
+            }
+            p0 = p1;
+        }
+    }
+    
+    int64_t min_x_uneven = std::numeric_limits<int64_t>::max();
+    unsigned int ret = NO_INDEX;
+    unsigned int n_unevens = 0;
+    for (unsigned int array_idx = 0; array_idx < size(); array_idx++)
+    {
+        if (crossings[array_idx] % 2 == 1)
+        {
+            n_unevens++;
+            if (min_x[array_idx] < min_x_uneven)
+            {
+                min_x_uneven = min_x[array_idx];
+                ret = array_idx;
+            }
+        }
+    }
+	//printf("n_uneven : %d \n", n_unevens);
+    if (n_unevens % 2 == 0) { ret = NO_INDEX; }
+	delete[] min_x;
+	delete[] crossings;
+    return ret;
+}
+
+coord_t Polygons::polyLineLength() const
+{
+    coord_t length = 0;
+    for (unsigned int poly_idx = 0; poly_idx < paths.size(); poly_idx++)
+    {
+        Point p0 = paths[poly_idx][0];
+        for (unsigned int point_idx = 1; point_idx < paths[poly_idx].size(); point_idx++)
+        {
+            Point p1 = paths[poly_idx][point_idx];
+            length += vSize(p0 - p1);
+            p0 = p1;
+        }
+    }
+    return length;
+}
+
+Polygons Polygons::offset(int distance, ClipperLib::JoinType join_type, double miter_limit) const
+{
+    Polygons ret;
+    ClipperLib::ClipperOffset clipper(miter_limit, 10.0);
+    clipper.AddPaths(unionPolygons().paths, join_type, ClipperLib::etClosedPolygon);
+    clipper.MiterLimit = miter_limit;
+    clipper.Execute(ret.paths, distance);
+    return ret;
+}
+
+Polygons ConstPolygonRef::offset(int distance, ClipperLib::JoinType join_type, double miter_limit) const
+{
+    Polygons ret;
+    ClipperLib::ClipperOffset clipper(miter_limit, 10.0);
+    clipper.AddPath(*path, join_type, ClipperLib::etClosedPolygon);
+    clipper.MiterLimit = miter_limit;
+    clipper.Execute(ret.paths, distance);
+    return ret;
+}
+
+//Polygon Polygons::convexHull() const
+PolygonSingle Polygons::convexHull() const
+{
+    // Implements Andrew's monotone chain convex hull algorithm
+    // See https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
+
+    using IntPoint = ClipperLib::IntPoint;
+
+    size_t num_points = 0U;
+    for (const ClipperLib::Path& path : paths)
+    {
+        num_points += path.size();
+    }
+
+    std::vector<IntPoint> all_points;
+    all_points.reserve(num_points);
+    for (const ClipperLib::Path& path : paths)
+    {
+        for (const IntPoint& point : path)
+        {
+            all_points.push_back(point);
+        }
+    }
+
+    struct HullSort
+    {
+        bool operator()(const IntPoint& a,
+                        const IntPoint& b)
+        {
+            return (a.X < b.X) ||
+                (a.X == b.X && a.Y < b.Y);
+        }
+    };
+
+    std::sort(all_points.begin(), all_points.end(), HullSort());
+
+    // positive for left turn, 0 for straight, negative for right turn
+    auto ccw = [](const IntPoint& p0, const IntPoint& p1, const IntPoint& p2) -> int64_t {
+        IntPoint v01(p1.X - p0.X, p1.Y - p0.Y);
+        IntPoint v12(p2.X - p1.X, p2.Y - p1.Y);
+
+        return
+            static_cast<int64_t>(v01.X) * v12.Y -
+            static_cast<int64_t>(v01.Y) * v12.X;
+    };
+
+    //Polygon hull_poly;
+	PolygonSingle hull_poly;
+    ClipperLib::Path& hull_points = *hull_poly;
+    hull_points.resize(num_points+1);
+    // index to insert next hull point, also number of valid hull points
+    size_t hull_idx = 0;
+
+    // Build lower hull
+    for (size_t pt_idx = 0U; pt_idx != num_points; ++pt_idx)
+    {
+        while (hull_idx >= 2 &&
+               ccw(hull_points[hull_idx-2], hull_points[hull_idx-1],
+                   all_points[pt_idx]) <= 0)
+        {
+            --hull_idx;
+        }
+        hull_points[hull_idx] = all_points[pt_idx];
+        ++hull_idx;
+    }
+
+    // Build upper hull
+    size_t min_upper_hull_chain_end_idx = hull_idx+1;
+    for (int pt_idx = num_points-2; pt_idx >= 0; --pt_idx)
+    {
+        while (hull_idx >= min_upper_hull_chain_end_idx &&
+               ccw(hull_points[hull_idx-2], hull_points[hull_idx-1],
+                   all_points[pt_idx]) <= 0)
+        {
+            --hull_idx;
+        }
+        hull_points[hull_idx] = all_points[pt_idx];
+        ++hull_idx;
+    }
+
+    assert(hull_idx <= hull_points.size());
+
+    // Last point is duplicted with first.  It is removed in the resize.
+    hull_points.resize(hull_idx - 2);
+
+    return hull_poly;
+}
+
+void PolygonRef::simplify(int smallest_line_segment_squared, int allowed_error_distance_squared){
+
+	if (size() < 3)
+	{
+		clear();
+		return;
+	}
+
+	// Algorithm Explanation:
+	// initial: 1
+	// after stage I: 2
+	// after first step of stage II: 3
+	//
+	//                       111111111111111111111111111
+	//                      1         22 332222         1
+	//                     1       222  3  3   222       1
+	//                    1      22    3   3      222     1
+	//                    1   222      3    3        2222 1
+	//                   1 222        3      3           221
+	//                  122          3       3              12
+	//                 12            3        3              1
+	//                 12           3          3             1
+	//                1 2          3            3            21
+	//               1  2          3            3            21
+	//               1  2         3              3          2  1
+	//              1    2        3               3         2  1
+	//              1    2       3                 3        2   1
+	//             1     2      3                  3        2   1
+	//              1    2      3                   3       2    1
+	//               1    2    3                     3      2    1
+	//                1   2   3                      3     2    1
+	//                 1  2   3                       3    2   1
+	//                  1  2 3                         3   2  1
+	//                   1 23                           3  2 1
+	//                    123                           3  21
+	//                     1                             321
+	//                                                    1
+	//
+	// this is neccesary in order to avoid the case where a long segment is followed by a lot of small segments would get simplified to a long segment going to the wrong end point
+	//  .......                _                 _______
+	// |                      /                 |
+	// |     would become    /    instead of    |
+	// |                    /                   |
+	//
+	// therefore every time a vert is removed the next is kept (for the moment)
+	//
+	// .......            ._._._._.         .___.___.          .________
+	// |                  |                 |                  |
+	// |    will  become  |    will become  |     will become  |
+	// |                  |                 |                  |
+	//
+
+	ClipperLib::Path this_path = *path;
+	coord_t min_length_2 = std::min(smallest_line_segment_squared, allowed_error_distance_squared);
+
+	ListPolygon result_list_poly;
+	result_list_poly.emplace_back(path->front());
+
+	std::vector<ListPolyIt> skipped_verts;
+	// add the first point as starting point for the algorithm
+	// whether the first point has to be removed is checked separately afterwards
+	skipped_verts.emplace_back(result_list_poly, result_list_poly.begin());
+
+	char here_is_beyond_line = 0;
+	{   // stage I: convert to a ListPolygon and remove verts, but don't remove verts just after removed verts (i.e. skip them)
+		Point prev = this_path[0];
+		auto skip = [this, &result_list_poly, &this_path, &prev, &skipped_verts](unsigned int& poly_idx)
+		{
+			poly_idx++;
+			if (poly_idx >= size())
+			{ // don't wrap around, the first point has already been added
+				return;
+			}
+			result_list_poly.emplace_back(this_path[poly_idx]);
+			prev = result_list_poly.back();
+			skipped_verts.emplace_back(result_list_poly, --result_list_poly.end());
+		};
+
+		for (unsigned int poly_idx = 1; poly_idx < size(); poly_idx++)
+		{
+			const Point& here = this_path[poly_idx];
+			const Point& next = this_path[(poly_idx + 1) % size()];
+			if (here == next)
+			{ // disregard duplicate points without skipping the next point
+				continue;
+			}
+			if (vSize2(here - prev) < min_length_2 && vSize2(next - here) < min_length_2)
+			{
+				// don't add [here] to the result
+				// skip checking whether the next point has to be removed for now
+				skip(poly_idx);
+				continue;
+			}
+			int64_t error2 = LinearAlg2D::getDist2FromLineSegment(prev, here, next, &here_is_beyond_line);
+			if (here_is_beyond_line == 0 && error2 < allowed_error_distance_squared)
+			{
+				// don't add [here] to the result
+				// skip checking whether the next point has to be removed for now
+				skip(poly_idx);
+			}
+			else
+			{
+				result_list_poly.emplace_back(here);
+				prev = result_list_poly.back();
+			}
+		}
+	}
+
+	{ // stage II: keep removing skipped verts (and skip the next vert if it was a skipped vert)
+		auto skip = [&skipped_verts, &result_list_poly](unsigned int& skipped_vert_idx, const ListPolyIt skipped_vert, std::vector<ListPolyIt>& new_skipped_verts)
+		{
+			unsigned int next_skipped_vert_idx = skipped_vert_idx + 1;
+			if (next_skipped_vert_idx < skipped_verts.size() && skipped_vert.next() == skipped_verts[next_skipped_vert_idx])
+			{
+				skipped_vert_idx++;
+				new_skipped_verts.emplace_back(skipped_verts[next_skipped_vert_idx]);
+			}
+			result_list_poly.erase(skipped_vert.it);
+		};
+		while (!skipped_verts.empty() && result_list_poly.size() >= 3)
+		{
+			std::vector<ListPolyIt> new_skipped_verts;
+
+			for (unsigned int skipped_vert_idx = 0; skipped_vert_idx < skipped_verts.size(); skipped_vert_idx++)
+			{
+				ListPolyIt skipped_vert = skipped_verts[skipped_vert_idx];
+				const Point& here = skipped_vert.p();
+				const Point& prev = skipped_vert.prev().p();
+
+				const Point& next = skipped_vert.next().p();
+				if (vSize2(here - prev) < min_length_2 && vSize2(next - here) < min_length_2)
+				{
+					// skip checking whether the next point has to be removed for now
+					skip(skipped_vert_idx, skipped_vert, new_skipped_verts);
+					continue;
+				}
+				int64_t error2 = LinearAlg2D::getDist2FromLineSegment(prev, here, next, &here_is_beyond_line);
+				if (here_is_beyond_line == 0 && error2 < allowed_error_distance_squared)
+				{
+					// skip checking whether the next point has to be removed for now
+					skip(skipped_vert_idx, skipped_vert, new_skipped_verts);
+				}
+				else
+				{
+					// keep the point
+				}
+			}
+			skipped_verts = new_skipped_verts;
+		}
+	}
+
+	clear();
+	if (result_list_poly.size() < 3)
+	{
+		return;
+	}
+	ListPolyIt::convertListPolygonToPolygon(result_list_poly, *this);
+}
+
+Polygons Polygons::getOutsidePolygons() const
+{
+    Polygons ret;
+    ClipperLib::Clipper clipper(clipper_init);
+    ClipperLib::PolyTree poly_tree;
+//    constexpr bool paths_are_closed_polys = true;
+	bool paths_are_closed_polys = true;
+    clipper.AddPaths(paths, ClipperLib::ptSubject, paths_are_closed_polys);
+    clipper.Execute(ClipperLib::ctUnion, poly_tree);
+
+    for (int outer_poly_idx = 0; outer_poly_idx < poly_tree.ChildCount(); outer_poly_idx++)
+    {
+        ClipperLib::PolyNode* child = poly_tree.Childs[outer_poly_idx];
+        ret.emplace_back(child->Contour);
+    }
+    return ret;
+}
+
+Polygons Polygons::removeEmptyHoles() const
+{
+    Polygons ret;
+    ClipperLib::Clipper clipper(clipper_init);
+    ClipperLib::PolyTree poly_tree;
+    ////constexpr bool paths_are_closed_polys = true;
+	bool paths_are_closed_polys = true;
+    clipper.AddPaths(paths, ClipperLib::ptSubject, paths_are_closed_polys);
+    clipper.Execute(ClipperLib::ctUnion, poly_tree);
+
+    bool remove_holes = true;
+    removeEmptyHoles_processPolyTreeNode(poly_tree, remove_holes, ret);
+    return ret;
+}
+
+Polygons Polygons::getEmptyHoles() const
+{
+    Polygons ret;
+    ClipperLib::Clipper clipper(clipper_init);
+    ClipperLib::PolyTree poly_tree;
+    //constexpr bool paths_are_closed_polys = true;
+	bool paths_are_closed_polys = true;
+    clipper.AddPaths(paths, ClipperLib::ptSubject, paths_are_closed_polys);
+    clipper.Execute(ClipperLib::ctUnion, poly_tree);
+
+    bool remove_holes = false;
+    removeEmptyHoles_processPolyTreeNode(poly_tree, remove_holes, ret);
+    return ret;
+}
+
+void Polygons::removeEmptyHoles_processPolyTreeNode(const ClipperLib::PolyNode& node, const bool remove_holes, Polygons& ret) const
+{
+    for (int outer_poly_idx = 0; outer_poly_idx < node.ChildCount(); outer_poly_idx++)
+    {
+        ClipperLib::PolyNode* child = node.Childs[outer_poly_idx];
+        if (remove_holes)
+        {
+            ret.emplace_back(child->Contour);
+        }
+        for (int hole_node_idx = 0; hole_node_idx < child->ChildCount(); hole_node_idx++)
+        {
+            ClipperLib::PolyNode& hole_node = *child->Childs[hole_node_idx];
+            if ((hole_node.ChildCount() > 0) == remove_holes)
+            {
+                ret.emplace_back(hole_node.Contour);
+                removeEmptyHoles_processPolyTreeNode(hole_node, remove_holes, ret);
+            }
+        }
+    }
+}
+
+std::vector<PolygonsPart> Polygons::splitIntoParts(bool unionAll) const
+{
+    std::vector<PolygonsPart> ret;
+    ClipperLib::Clipper clipper(clipper_init);
+    ClipperLib::PolyTree resultPolyTree;
+    clipper.AddPaths(paths, ClipperLib::ptSubject, true);
+    if (unionAll)
+        //clipper.Execute(ClipperLib::ctUnion, resultPolyTree, ClipperLib::pftNonZero, ClipperLib::pftNonZero);
+        clipper.Execute(ClipperLib::ctUnion, resultPolyTree, ClipperLib::pftPositive, ClipperLib::pftPositive);
+    else
+        clipper.Execute(ClipperLib::ctUnion, resultPolyTree);
+
+    splitIntoParts_processPolyTreeNode(&resultPolyTree, ret);
+    return ret;
+}
+
+void Polygons::splitIntoParts_processPolyTreeNode(ClipperLib::PolyNode* node, std::vector<PolygonsPart>& ret) const
+{
+    for(int n=0; n<node->ChildCount(); n++)
+    {
+        ClipperLib::PolyNode* child = node->Childs[n];
+        PolygonsPart part;
+        part.add(child->Contour);
+        for(int i=0; i<child->ChildCount(); i++)
+        {
+            part.add(child->Childs[i]->Contour);
+            splitIntoParts_processPolyTreeNode(child->Childs[i], ret);
+        }
+        ret.push_back(part);
+    }
+}
+
+unsigned int PartsView::getPartContaining(unsigned int poly_idx, unsigned int* boundary_poly_idx) const
+{
+    const PartsView& partsView = *this;
+    for (unsigned int part_idx_now = 0; part_idx_now < partsView.size(); part_idx_now++)
+    {
+        const std::vector<unsigned int>& partView = partsView[part_idx_now];
+        if (partView.size() == 0) { continue; }
+        std::vector<unsigned int>::const_iterator result = std::find(partView.begin(), partView.end(), poly_idx);
+        if (result != partView.end()) 
+        { 
+            if (boundary_poly_idx) { *boundary_poly_idx = partView[0]; }
+            return part_idx_now;
+        }
+    }
+    return NO_INDEX;
+}
+
+PolygonsPart PartsView::assemblePart(unsigned int part_idx) const
+{
+    const PartsView& partsView = *this;
+    PolygonsPart ret;
+    if (part_idx != NO_INDEX)
+    {
+        for (unsigned int poly_idx_ff : partsView[part_idx])
+        {
+            ret.add(polygons[poly_idx_ff]);
+        }
+    }
+    return ret;
+}
+
+PolygonsPart PartsView::assemblePartContaining(unsigned int poly_idx, unsigned int* boundary_poly_idx) const
+{
+    PolygonsPart ret;
+    unsigned int part_idx = getPartContaining(poly_idx, boundary_poly_idx);
+    if (part_idx != NO_INDEX)
+    {
+        return assemblePart(part_idx);
+    }
+    return ret;
+}
+
+PartsView Polygons::splitIntoPartsView(bool unionAll)
+{
+    Polygons reordered;
+    PartsView partsView(*this);
+    ClipperLib::Clipper clipper(clipper_init);
+    ClipperLib::PolyTree resultPolyTree;
+    clipper.AddPaths(paths, ClipperLib::ptSubject, true);
+    if (unionAll)
+        clipper.Execute(ClipperLib::ctUnion, resultPolyTree, ClipperLib::pftNonZero, ClipperLib::pftNonZero);
+    else
+        clipper.Execute(ClipperLib::ctUnion, resultPolyTree);
+
+    splitIntoPartsView_processPolyTreeNode(partsView, reordered, &resultPolyTree);
+    
+    (*this) = reordered;
+    return partsView;
+}
+
+void Polygons::splitIntoPartsView_processPolyTreeNode(PartsView& partsView, Polygons& reordered, ClipperLib::PolyNode* node) const
+{
+    for(int n=0; n<node->ChildCount(); n++)
+    {
+        ClipperLib::PolyNode* child = node->Childs[n];
+        partsView.emplace_back();
+        unsigned int pos = partsView.size() - 1;
+        partsView[pos].push_back(reordered.size());
+        reordered.add(child->Contour); //TODO: should this steal the internal representation for speed?
+        for(int i = 0; i < child->ChildCount(); i++)
+        {
+            partsView[pos].push_back(reordered.size());
+            reordered.add(child->Childs[i]->Contour);
+            splitIntoPartsView_processPolyTreeNode(partsView, reordered, child->Childs[i]);
+        }
+    }
+}
+
+}//namespace cura
