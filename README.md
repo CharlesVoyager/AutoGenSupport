@@ -7,6 +7,8 @@ Compiling
 - C++
 - Windows SDK 10.0
 
+NOTE: Compiling projects in Release mode. Debug mode does not be verified.
+
 Using it
 ========
 - Compile Slicer2.0DLL. This a module that used to convert 3D objects in STL file format to vectors.
